@@ -17,24 +17,23 @@ export default function Stake() {
 
 	// const [finalStakeAmount, setFinalStakeAmount] = useRef("");
 
-	// Prepare contract configuratio
-	// const {
-	// 	data: approveHash,
-	// 	error: approveError,
-	// 	isPending: approvePending,
-	// 	status: approveStatus,
-	// 	writeContractAsync: approve,
-	// } = useWriteContract();
+	const {
+		data: approveHash,
+		error: approveError,
+		isPending: approvePending,
+		status: approveStatus,
+		writeContractAsync: approve,
+	} = useWriteContract();
 
-	// const {
-	// 	data: stakeHash,
-	// 	error: stakeError,
-	// 	isPending: stakePending,
-	// 	status: stakeStatus,
-	// 	writeContractAsync: stake,
-	// } = useWriteContract();
+	const {
+		data: stakeHash,
+		error: stakeError,
+		isPending: stakePending,
+		status: stakeStatus,
+		writeContractAsync: stake,
+	} = useWriteContract();
 
-	const {writeContract}= useWriteContract();
+	const { writeContract } = useWriteContract();
 
 	console.log("address", address);
 
@@ -90,41 +89,29 @@ export default function Stake() {
 							const finalValue = value.toString();
 							console.log("finalValueToStake", finalValue);
 
-							// await approve({
-							// 	...shashwotTokenContract,
-							// 	functionName: "approve",
-							// 	args: [stakeContractAddress, finalValue],
-							// });
-
-							// console.log("approveResponse", approveStatus);
-
-							// // console.log("approveHash", approveHash);
-							// // console.log("approveError", approveError);
-							// // console.log("approveIsPending", approvePending);
-
-							// if (approveStatus === "success") {
-							// 	await stake({
-							// 		...stakeContract,
-							// 		functionName: "stake",
-							// 		args: [finalValue],
-							// 	});
-
-							// 	console.log("stakeHash", stakeHash);
-							// 	console.log("stakeError", stakeError);
-							// 	console.log("stakePending", stakePending);
-							// }
-
-				
-							writeContract({
+							await approve({
 								...shashwotTokenContract,
 								functionName: "approve",
 								args: [stakeContractAddress, finalValue],
 							});
-							writeContract({
-								...stakeContract,
-								functionName: "stake",
-								args: [finalValue],
-							});
+
+							console.log("approveResponse", approveStatus);
+
+							console.log("approveHash", approveHash);
+							console.log("approveError", approveError);
+							console.log("approveIsPending", approvePending);
+
+							if (approveStatus === "success") {
+								await stake({
+									...stakeContract,
+									functionName: "stake",
+									args: [finalValue],
+								});
+
+								console.log("stakeHash", stakeHash);
+								console.log("stakeError", stakeError);
+								console.log("stakePending", stakePending);
+							}
 						}}
 						className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200 flex items-center"
 					>
