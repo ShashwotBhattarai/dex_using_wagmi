@@ -15,26 +15,7 @@ export default function Stake() {
 	const [unStakeAmount, setUnStake] = useState(0);
 	const [totalStakedAmount, setTotalStakedAmount] = useState(0);
 
-	// const [finalStakeAmount, setFinalStakeAmount] = useRef("");
-
-	// Prepare contract configuratio
-	// const {
-	// 	data: approveHash,
-	// 	error: approveError,
-	// 	isPending: approvePending,
-	// 	status: approveStatus,
-	// 	writeContractAsync: approve,
-	// } = useWriteContract();
-
-	// const {
-	// 	data: stakeHash,
-	// 	error: stakeError,
-	// 	isPending: stakePending,
-	// 	status: stakeStatus,
-	// 	writeContractAsync: stake,
-	// } = useWriteContract();
-
-	const {writeContract}= useWriteContract();
+	const { writeContract } = useWriteContract();
 
 	console.log("address", address);
 
@@ -89,38 +70,12 @@ export default function Stake() {
 								BigInt(stakeAmount) * BigInt("1000000000000000000");
 							const finalValue = value.toString();
 							console.log("finalValueToStake", finalValue);
-
-							// await approve({
-							// 	...shashwotTokenContract,
-							// 	functionName: "approve",
-							// 	args: [stakeContractAddress, finalValue],
-							// });
-
-							// console.log("approveResponse", approveStatus);
-
-							// // console.log("approveHash", approveHash);
-							// // console.log("approveError", approveError);
-							// // console.log("approveIsPending", approvePending);
-
-							// if (approveStatus === "success") {
-							// 	await stake({
-							// 		...stakeContract,
-							// 		functionName: "stake",
-							// 		args: [finalValue],
-							// 	});
-
-							// 	console.log("stakeHash", stakeHash);
-							// 	console.log("stakeError", stakeError);
-							// 	console.log("stakePending", stakePending);
-							// }
-
-				
-							writeContract({
+							await writeContract({
 								...shashwotTokenContract,
 								functionName: "approve",
 								args: [stakeContractAddress, finalValue],
 							});
-							writeContract({
+							await writeContract({
 								...stakeContract,
 								functionName: "stake",
 								args: [finalValue],
