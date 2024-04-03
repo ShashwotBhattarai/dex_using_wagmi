@@ -8,6 +8,7 @@ import {
 import { config } from "@/wagmi";
 import { stakeContractAddress } from "@/constants/addresses";
 import { type UseWriteContractParameters } from "wagmi";
+import { waitForTransactionReceipt } from '@wagmi/core'
 
 export default function Stake() {
 	const { address } = useAccount();
@@ -89,19 +90,19 @@ export default function Stake() {
 							const finalValue = value.toString();
 							console.log("finalValueToStake", finalValue);
 
-							await approve({
+							const response= await approve({
 								...shashwotTokenContract,
 								functionName: "approve",
 								args: [stakeContractAddress, finalValue],
 							});
-
+							console.log("response", response);
 							console.log("approveResponse", approveStatus);
 
 							console.log("approveHash", approveHash);
 							console.log("approveError", approveError);
 							console.log("approveIsPending", approvePending);
 
-							if (approveStatus === "success") {
+							if (approveStatus !== "idle" && approveStatus === "success") {
 								await stake({
 									...stakeContract,
 									functionName: "stake",
