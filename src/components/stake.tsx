@@ -76,6 +76,7 @@ export default function Stake() {
 								functionName: "approve",
 								args: [stakeContractAddress, finalValue],
 							});
+							setReload(true);
 							await writeContract({
 								...stakeContract,
 								functionName: "stake",
