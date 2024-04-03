@@ -14,6 +14,7 @@ export default function Stake() {
 	const [stakeAmount, setStake] = useState(0);
 	const [unStakeAmount, setUnStake] = useState(0);
 	const [totalStakedAmount, setTotalStakedAmount] = useState(0);
+	const [reload, setReload]= useState(false);
 
 	const { writeContract } = useWriteContract();
 
@@ -80,6 +81,8 @@ export default function Stake() {
 								functionName: "stake",
 								args: [finalValue],
 							});
+							setReload(true);
+
 						}}
 						className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200 flex items-center"
 					>
