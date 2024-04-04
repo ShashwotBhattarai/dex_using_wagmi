@@ -3,6 +3,7 @@
 import { useAccount, useConnect, useDisconnect, useEnsName } from "wagmi";
 import Link from "next/link";
 import Stake from "../components/stake";
+import Swap from "@/components/swap";
 
 function App() {
 	const account = useAccount();
@@ -44,18 +45,19 @@ function App() {
 				<div>{error?.message}</div>
 			</div>
 
-			{/* <div>
+			<div>
 				<button>
 					<Link href="/swap">Swap</Link>
 				</button>
 				<button>
 					<Link href="/stake">Stake</Link>
 				</button>
-			</div> */}
+			</div>
 
-      <div>
+      {/* <div>
         <Stake/>
-      </div>
+		<Swap/>
+      </div> */}
       
 		</>
 	);

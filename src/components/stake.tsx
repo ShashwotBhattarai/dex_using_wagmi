@@ -7,16 +7,24 @@ import {
 } from "@/contractConfigs/stakeContract.config";
 import { config } from "@/wagmi";
 import { stakeContractAddress } from "@/constants/addresses";
-import { type UseWriteContractParameters } from "wagmi";
-import { waitForTransactionReceipt } from '@wagmi/core'
+import { waitForTransactionReceipt } from "@wagmi/core";
 
 export default function Stake() {
 	const { address } = useAccount();
 	const [stakeAmount, setStake] = useState(0);
 	const [unStakeAmount, setUnStake] = useState(0);
-	const [totalStakedAmount, setTotalStakedAmount] = useState(0);
+	const [totalStakedAmount, setTotalStakedAmount] = useState("");
+	const [fetchStakeAmount, setFetchStakeAmount] = useState(false);
 
-	// const [finalStakeAmount, setFinalStakeAmount] = useRef("");
+	// const finalStakeAmount = useRef("");
+
+	console.log("address", address);
+
+	const { data: balance, refetch: refetchBalance }: any = useReadContract({
+		...stakeContract,
+		functionName: "balanceOf",
+		args: [address],
+	});
 
 	const {
 		data: approveHash,
@@ -34,21 +42,13 @@ export default function Stake() {
 		writeContractAsync: stake,
 	} = useWriteContract();
 
-	const { writeContract } = useWriteContract();
-
-	console.log("address", address);
-
-	const { data: balance }: any = useReadContract({
-		...stakeContract,
-		functionName: "balanceOf",
-		args: [address],
-	});
-
-	console.log("balance", balance);
-
-	useEffect(() => {
-		setTotalStakedAmount(balance);
-	}, [balance]);
+	const {
+		data: unStakeHash,
+		error: unStakeError,
+		isPending: unStakePending,
+		status: unStakeStatus,
+		writeContractAsync: unStake,
+	} = useWriteContract();
 
 	const handleStakeChange = (event: any) => {
 		setStake(event.target.value);
@@ -65,7 +65,10 @@ export default function Stake() {
 	};
 
 	const readContract = async () => {
-		console.log("total staked amount", totalStakedAmount);
+		await refetchBalance();
+
+		setTotalStakedAmount(balance.toString());
+		// finalStakeAmount.current = balance.toString();
 	};
 
 	return (
@@ -90,28 +93,50 @@ export default function Stake() {
 							const finalValue = value.toString();
 							console.log("finalValueToStake", finalValue);
 
-							const response= await approve({
-								...shashwotTokenContract,
-								functionName: "approve",
-								args: [stakeContractAddress, finalValue],
-							});
-							console.log("response", response);
-							console.log("approveResponse", approveStatus);
-
-							console.log("approveHash", approveHash);
-							console.log("approveError", approveError);
-							console.log("approveIsPending", approvePending);
-
-							if (approveStatus !== "idle" && approveStatus === "success") {
-								await stake({
-									...stakeContract,
-									functionName: "stake",
-									args: [finalValue],
+							try {
+								const approveResponseHash = await approve({
+									...shashwotTokenContract,
+									functionName: "approve",
+									args: [stakeContractAddress, finalValue],
 								});
 
-								console.log("stakeHash", stakeHash);
-								console.log("stakeError", stakeError);
-								console.log("stakePending", stakePending);
+								const approveTransactionReceipt =
+									await waitForTransactionReceipt(config, {
+										hash: approveResponseHash,
+									});
+
+								console.log(approveTransactionReceipt);
+
+								console.log("response", approveResponseHash);
+								console.log("approveResponse", approveStatus);
+
+								console.log("approveHash", approveHash);
+								console.log("approveError", approveError);
+								console.log("approveIsPending", approvePending);
+
+								if (approveTransactionReceipt.status === "success") {
+									const stakeResponseHash = await stake({
+										...stakeContract,
+										functionName: "stake",
+										args: [finalValue],
+									});
+
+									const stakeTransactionReceipt =
+										await waitForTransactionReceipt(config, {
+											hash: stakeResponseHash,
+										});
+
+									console.log("stakeHash", stakeHash);
+									console.log("stakeError", stakeError);
+									console.log("stakePending", stakePending);
+									console.log("stakeStatus", stakeStatus);
+									console.log(
+										"stakeTransactionReceipt",
+										stakeTransactionReceipt
+									);
+								}
+							} catch (error) {
+								console.log(error);
 							}
 						}}
 						className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200 flex items-center"
@@ -129,7 +154,29 @@ export default function Stake() {
 						className="flex-grow p-2 border-2 border-blue-500 bg-gray-900 text-white rounded focus:outline-none focus:border-blue-700"
 					/>
 					<button
-						onClick={withdrawStakedAmount}
+						onClick={async () => {
+							const value: BigInt =
+								BigInt(unStakeAmount) * BigInt("1000000000000000000");
+							const finalValue = value.toString();
+							console.log("finalValueToStake", finalValue);
+							try {
+								const unStakeResponseHash = await unStake({
+									...stakeContract,
+									functionName: "withdraw",
+									args: [finalValue],
+								});
+
+								const stakeTransactionReceipt = await waitForTransactionReceipt(
+									config,
+									{
+										hash: unStakeResponseHash,
+									}
+								);
+								console.log("stakeTransactionReceipt", stakeTransactionReceipt);
+							} catch (error) {
+								console.log(error);
+							}
+						}}
 						className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200 flex items-center"
 					>
 						Unstake
@@ -138,7 +185,7 @@ export default function Stake() {
 
 				<div className="flex items-center justify-center pt-4">
 					<button
-						// onClick={readContract}
+						onClick={readContract}
 						className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded transition-colors duration-200"
 					>
 						Check Staked Amount
